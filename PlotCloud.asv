@@ -1,0 +1,21 @@
+function PlotCloud()
+
+v = GetCoords();
+close all;
+
+plot3(v(: , 1) , v(:,2) , v(:,3) , 'k.')
+
+hold on
+
+xlim([-1 1])
+ylim([-1 1])
+zlim([-1 1])
+
+xlabel('X');
+ylabel('Z');
+zlabel('Y');
+
+view([0 1 0])
+
+end
+

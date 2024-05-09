@@ -1,0 +1,115 @@
+% Track CF
+%
+% Locates changes in the pointcloud within a certain range and records
+% the average coordinate of the change
+
+function [cfPath] = TrackCF()
+
+% Set path
+path('C:\Users\Will\Desktop\camera\Intel RealSense SDK 2.0\matlab')
+
+% Create pipeline and stream from camera
+pipe = realsense.pipeline();
+pointcloud = realsense.pointcloud();
+profile = pipe.start();
+
+% initializes the previous coord array
+prevCoords = zeros(407040 , 3);
+
+% initilizes the path approximated by the camera
+cfPath = [];
+
+% tracks what point is to be recorded on the path
+pathIndex = 1;
+
+while 1
+
+    % creates arrays for the updated coordinates after removing the
+    % duplicate coordinates
+    adjustedCoordsX = [];
+    adjustedCoordsY = [];
+    adjustedCoordsZ = [];
+
+    % stores the x,y,z location of the current point where the cf is in
+    % array
+
+    ptLoc = zeros(1 , 3);
+
+    % retrieves the current pointcloud
+    [coords] = GetCoords(pipe , pointcloud);
+
+    if i ~= 1
+        index = 1;
+        for j = 1:height(coords)
+
+            % determines the changes between the previous and current
+            % pointclouds
+            x = abs(coords(j , 1) - prevCoords(j , 1));
+            y = abs(coords(j , 2) - prevCoords(j , 2));
+            z = abs(coords(j , 3) - prevCoords(j , 3));
+
+            % if the changes are less then a threshhold, the 3D coord is
+            % set to zero, or if the z coord is greater than the max range
+            if x <= 2 && y <= 2 && z <= 2 || coords(j , 1) >= 1 || coords(j , 2) >= 1 || coords(j , 3) >= 1
+
+                continue;
+
+            else
+
+                if coords(j , 1) == 0 || coords(j , 2) == 0 || coords(j , 3) == 0
+                    continue;
+                end
+
+                adjustedCoordsX(index) = coords(j , 1);
+                adjustedCoordsZ(index) = coords(j , 2);
+                adjustedCoordsY(index) = coords(j , 3);
+
+                index = 1 + index;
+
+            end
+        end
+        % plots the adjusted coords
+        %{
+        figure(i)
+
+        plot3(adjustedCoords(: , 1) , adjustedCoords(: , 2) , adjustedCoords(: , 3) , 'k.')
+        
+        hold on
+
+        xlim([-1 1])
+        ylim([-1 1])
+        zlim([-1 1])
+
+        xlabel('X');
+        ylabel('Z');
+        zlabel('Y');
+
+        view([0 0 -1])
+        %}
+        
+        % updates the cfPath array
+        ptLoc(1 , 1) = mean(adjustedCoordsX);
+        ptLoc(1 , 3) = mean(adjustedCoordsY);
+        ptLoc(1 , 2) = mean(adjustedCoordsZ);
+        
+
+        % Stores the point location in the path array
+        cfPath = [cfPath; ptLoc];
+       
+        pathIndex = pathIndex + 1;
+    end
+    
+    % stores image captured by camera
+    %imgArray(i) = img;
+
+    % updates the previous coords
+    prevCoords = coords;
+    close all;
+
+end
+
+% Stop streaming from camera
+pipe.stop();
+
+end
+
