@@ -2,9 +2,9 @@
 %
 % Calls the python CF code to fly and hold
 
-function flyCF()
+function [cfLog] = flyCF()
 
-pyrunfile('FlyAndHold.py')
-
+cfLog = pyrunfile('FlyAndHold.py' , 'returnLog');
+cfLog = double(cfLog);
 end
 

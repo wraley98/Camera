@@ -1,4 +1,4 @@
-function [cfData , cameraPts]= PlotPath()
+function [cfData , xPoints, yPoints, zPoints]= PlotPath()
 %PlotPath Driver function for flying, tracking, and then plotting the path 
 % of the CF
 
@@ -65,6 +65,6 @@ axis equal
 % shutdown parallel code
 delete(gcp('nocreate'));
 
-cameraPts = [xPoints ; yPoints ; zPoints];
+cameraPts = [[] , [] , 
 
 end
